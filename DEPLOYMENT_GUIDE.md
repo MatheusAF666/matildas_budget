@@ -70,7 +70,7 @@ Copia la clave generada, la necesitarás más adelante.
 
 ### 2.3 Configurar Variables de Entorno
 
-En tu Web Service, ve a **"Environment"** y agrega:
+En tu Web Service, ve a **"Environment"** y agrega estas variables **una por una**:
 
 ```env
 APP_NAME=Matilda's Budget
@@ -98,12 +98,17 @@ MAIL_FROM_ADDRESS=tu-email@gmail.com
 MAIL_FROM_NAME=Matilda's Budget
 ```
 
+⚠️ **IMPORTANTE:** NO agregues manualmente `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, ni `DB_PASSWORD`. Estas variables se configuran automáticamente en el siguiente paso.
+
 ### 2.4 Conectar Base de Datos
 
-1. En la sección de variables de entorno, busca **"Add from Database"**
+**Este paso es CRÍTICO para que funcione la conexión a la base de datos:**
+
+1. En la sección de variables de entorno, busca el botón **"Add from Database"**
 2. Selecciona tu base de datos `matildas-budget-db`
-3. Click en **"Add connection"**
-4. Render agregará automáticamente la variable `DATABASE_URL`
+3. Click en **"Add connection"** o **"Connect"**
+4. Render agregará automáticamente la variable `DATABASE_URL` con el formato correcto
+5. **Verifica** que aparezca la variable `DATABASE_URL` en tu lista de variables de entorno
 
 ### 2.5 Configurar Health Check (Opcional pero recomendado)
 
@@ -159,8 +164,17 @@ Render desplegará automáticamente los cambios (toma 5-10 minutos).
 ### Error: "Database connection failed"
 
 1. Verifica que la base de datos esté en estado "Available"
-2. Asegúrate de haber agregado la conexión desde "Add from Database"
-3. Verifica que `DB_CONNECTION=pgsql` esté configurado
+2. **CRÍTICO:** Asegúrate de haber usado **"Add from Database"** en las variables de entorno
+3. Verifica que la variable `DATABASE_URL` esté presente en tus variables de entorno
+4. **NO debes tener** `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` configuradas manualmente
+5. Verifica que `DB_CONNECTION=pgsql` esté configurado
+
+### Error: "start.sh: not found" o caracteres raros
+
+1. El archivo tiene codificación incorrecta (BOM)
+2. En VS Code, abre [start.sh](start.sh)
+3. Abajo a la derecha, click en "CRLF" → selecciona "LF"
+4. Guarda y sube los cambios a GitHub
 
 ### El servicio se duerme (Free tier)
 

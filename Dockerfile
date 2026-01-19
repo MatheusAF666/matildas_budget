@@ -1,4 +1,4 @@
-FROM php:8.2-cli
+﻿FROM php:8.2-cli
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -28,12 +28,12 @@ WORKDIR /app
 # Copy application files
 COPY . /app
 
-# Make build script executable
-RUN chmod +x /app/build.sh
+# Make scripts executable
+RUN chmod +x /app/build.sh /app/start.sh
 
 # Run build script
 RUN /app/build.sh
 
 EXPOSE 8080
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+CMD ["/app/start.sh"]

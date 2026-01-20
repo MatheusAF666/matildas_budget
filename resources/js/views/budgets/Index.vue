@@ -166,10 +166,23 @@ const downloadPDF = async (id) => {
         
         // Cargar imagen y convertir a base64
         const response = await fetch(logoUrl)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch logo: ${response.status} ${response.statusText}`)
+        }
+        
         const blob = await response.blob()
-        const base64 = await new Promise((resolve) => {
+        console.log('Blob loaded, type:', blob.type, 'size:', blob.size)
+        
+        const base64 = await new Promise((resolve, reject) => {
           const reader = new FileReader()
-          reader.onloadend = () => resolve(reader.result)
+          reader.onloadend = () => {
+            console.log('Base64 conversion complete, length:', reader.result?.length)
+            resolve(reader.result)
+          }
+          reader.onerror = (err) => {
+            console.error('FileReader error:', err)
+            reject(err)
+          }
           reader.readAsDataURL(blob)
         })
         
@@ -177,6 +190,8 @@ const downloadPDF = async (id) => {
         
         // Crear imagen temporal para obtener dimensiones
         const img = new Image()
+        img.crossOrigin = 'anonymous' // Intentar evitar problemas de CORS
+        
         await new Promise((resolve, reject) => {
           img.onload = () => {
             console.log('Image loaded with dimensions:', img.width, 'x', img.height)
@@ -184,7 +199,7 @@ const downloadPDF = async (id) => {
           }
           img.onerror = (err) => {
             console.error('Error loading image element:', err)
-            reject(err)
+            reject(new Error('Failed to load image into Image element'))
           }
           // Timeout de 5 segundos
           setTimeout(() => reject(new Error('Image load timeout')), 5000)
@@ -195,8 +210,14 @@ const downloadPDF = async (id) => {
         const logoHeight = 25
         const logoWidth = (img.width / img.height) * logoHeight
         
-        // Detectar formato de imagen
-        const format = company.logo.toLowerCase().includes('.png') ? 'PNG' : 'JPEG'
+        // Detectar formato de imagen desde el blob type
+        let format = 'JPEG'
+        if (blob.type === 'image/png') {
+          format = 'PNG'
+        } else if (blob.type === 'image/jpeg' || blob.type === 'image/jpg') {
+          format = 'JPEG'
+        }
+        
         console.log('Adding image to PDF with format:', format)
         doc.addImage(base64, format, 15, y, logoWidth, logoHeight)
         console.log('Image added successfully to PDF')

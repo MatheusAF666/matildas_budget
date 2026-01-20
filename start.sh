@@ -27,6 +27,9 @@ chmod 664 /app/storage/logs/laravel.log
 echo "Running database migrations..."
 php artisan migrate --force
 
+echo "Creating storage link..."
+php artisan storage:link || echo "Storage link already exists"
+
 echo "Clearing and caching configuration..."
 php artisan config:clear
 php artisan cache:clear

@@ -71,6 +71,7 @@ class BudgetController extends Controller
             foreach ($validated['items'] as $item) {
                 BudgetItem::create([
                     'budget_id' => $budget->id,
+                    'title' => $item['title'] ?? null,
                     'description' => $item['description'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
@@ -169,6 +170,7 @@ class BudgetController extends Controller
             foreach ($validated['items'] as $item) {
                 BudgetItem::create([
                     'budget_id' => $budget->id,
+                    'title' => $item['title'] ?? null,
                     'description' => $item['description'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],

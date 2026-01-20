@@ -24,6 +24,9 @@ php artisan view:cache
 
 echo "Application ready!"
 
+# Create symlink for logs
+ln -sf /dev/stdout /app/storage/logs/laravel.log
+
 # Replace PORT in nginx config
 envsubst '${PORT}' < /etc/nginx/nginx.conf > /tmp/nginx.conf
 mv /tmp/nginx.conf /etc/nginx/nginx.conf

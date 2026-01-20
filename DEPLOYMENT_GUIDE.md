@@ -156,10 +156,34 @@ Render desplegará automáticamente los cambios (toma 5-10 minutos).
 
 ### Error: "500 Internal Server Error"
 
-1. Ve a los logs en Render
-2. Verifica que todas las variables de entorno estén configuradas
-3. Asegúrate de que la `APP_KEY` esté configurada
-4. Verifica que `DATABASE_URL` esté presente
+**Paso 1: Activar modo debug temporalmente**
+
+1. En Render, ve a **Environment** de tu Web Service
+2. Cambia `APP_DEBUG=false` a `APP_DEBUG=true`
+3. Guarda y espera a que se redespliegue automáticamente
+4. Visita tu URL para ver el error detallado
+5. **IMPORTANTE:** Después de identificar el error, vuelve a poner `APP_DEBUG=false`
+
+**Paso 2: Verificar configuración común**
+
+1. Verifica que la `APP_KEY` esté configurada correctamente:
+   - Debe empezar con `base64:`
+   - Debe tener al menos 32 caracteres después de `base64:`
+   - No debe tener espacios o saltos de línea
+
+2. Verifica que `DATABASE_URL` esté presente en las variables de entorno
+
+3. Verifica que `APP_URL` coincida con tu URL de Render:
+   ```
+   APP_URL=https://TU-SERVICIO.onrender.com
+   ```
+
+**Paso 3: Errores comunes**
+
+- **Error de CSRF token**: Verifica que `APP_URL` sea correcto y use HTTPS
+- **Error de session**: Verifica que `SESSION_DRIVER=database` esté configurado
+- **Error de permisos**: Los permisos se configuran en [start.sh](start.sh), no debería haber problemas
+- **Error de APP_KEY**: Genera una nueva con `php artisan key:generate --show`
 
 ### Error: "Database connection failed"
 

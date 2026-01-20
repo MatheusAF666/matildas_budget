@@ -372,23 +372,30 @@ const downloadPDF = async (id) => {
     const subtotalAmount = totalAmount / 1.21  // Total sin IVA
     const ivaAmount = totalAmount - subtotalAmount  // IVA (21%)
     
-    // Subtotal (sin IVA)
+    // Primer Total (sin IVA)
     y += 2
-    doc.setFont(undefined, 'normal')
-    doc.setFontSize(9)
-    doc.text('Subtotal (sin IVA)', pageWidth / 2 - 10, y, { align: 'center' })
-    doc.text(`${subtotalAmount.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
-    
-    // IVA
-    y += 5
-    doc.text('IVA (21%)', pageWidth / 2 - 10, y, { align: 'center' })
-    doc.text(`${ivaAmount.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
-    
-    // Total (con IVA)
-    y += 5
     doc.setFont(undefined, 'bold')
     doc.setFontSize(9.5)
-    doc.text('Total (con IVA)', pageWidth / 2 - 10, y, { align: 'center' })
+    doc.text('Total', pageWidth / 2 - 10, y, { align: 'center' })
+    doc.text(`${subtotalAmount.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
+    
+    // Nota de que no incluye IVA
+    y += 5
+    doc.setFont(undefined, 'normal')
+    doc.setFontSize(8)
+    doc.text('(IVA no incluido)', pageWidth / 2 - 10, y, { align: 'center' })
+    
+    // Línea separadora
+    y += 3
+    doc.setDrawColor(...azulClaro)
+    doc.setLineWidth(0.3)
+    doc.line(20, y, pageWidth - 20, y)
+    
+    // Segundo Total (con IVA)
+    y += 5
+    doc.setFont(undefined, 'bold')
+    doc.setFontSize(10)
+    doc.text('Total con IVA (21%)', pageWidth / 2 - 10, y, { align: 'center' })
     doc.text(`${totalAmount.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
     doc.setFont(undefined, 'normal')
     

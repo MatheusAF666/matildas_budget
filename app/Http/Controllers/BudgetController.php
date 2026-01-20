@@ -269,31 +269,35 @@ class BudgetController extends Controller
             $user = $request->user();
             $companySettings = [
                 'name' => $user->company_name,
-                'logo' => $user->company_logo,
+                'logo' => $user->company_logo ? Storage::url($user->company_logo) : null,
                 'phone' => $user->company_phone,
                 'email' => $user->company_email,
                 'address' => $user->company_address,
                 'website' => $user->company_website,
             ];
 
+            Log::info("Attempting to send budget #{$budget->budget_number} email to: {$budget->client->email}");
+            Log::info("Company settings: " . json_encode($companySettings));
+
             // Enviar email al cliente con copia al usuario
             Mail::to($budget->client->email)
                 ->cc($user->email)
                 ->send(new BudgetCreated($budget, $companySettings));
 
-            Log::info("Budget #{$budget->budget_number} email sent to: {$budget->client->email} with CC to: {$user->email}");
+            Log::info("Budget #{$budget->budget_number} email sent successfully to: {$budget->client->email} with CC to: {$user->email}");
 
             return response()->json([
                 'status' => true,
-                'message' => 'Email sent successfully to ' . $budget->client->email
+                'message' => 'Email enviado exitosamente a ' . $budget->client->email
             ]);
 
         } catch (\Exception $e) {
             Log::error('Failed to send budget email: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             
             return response()->json([
                 'status' => false,
-                'message' => 'Failed to send email: ' . $e->getMessage()
+                'message' => 'Error al enviar email: ' . $e->getMessage()
             ], 500);
         }
     }

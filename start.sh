@@ -19,6 +19,11 @@ chmod -R 775 /app/storage /app/bootstrap/cache
 echo "Waiting for database connection..."
 sleep 5
 
+# Create log file to prevent errors
+touch /app/storage/logs/laravel.log
+chown www-data:www-data /app/storage/logs/laravel.log
+chmod 664 /app/storage/logs/laravel.log
+
 echo "Running database migrations..."
 php artisan migrate --force
 

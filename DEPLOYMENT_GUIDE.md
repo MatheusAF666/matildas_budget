@@ -79,8 +79,8 @@ APP_KEY=base64:TU-CLAVE-GENERADA-AQUI
 APP_DEBUG=false
 APP_URL=https://matildas-budget.onrender.com
 
+LOG_CHANNEL=stderr
 LOG_LEVEL=error
-LOG_CHANNEL=stack
 
 SESSION_DRIVER=database
 SESSION_LIFETIME=120

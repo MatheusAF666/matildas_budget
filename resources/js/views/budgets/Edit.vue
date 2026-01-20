@@ -155,18 +155,34 @@
 
                   <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
                     <div class="md:col-span-5">
+                      <label :for="'title_' + index" class="block text-sm font-medium text-gray-700 mb-1">
+                        Título *
+                      </label>
+                      <input
+                        v-model="item.title"
+                        :id="'title_' + index"
+                        type="text"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
+                        placeholder="Título del artículo"
+                      />
+                    </div>
+
+                    <div class="md:col-span-7">
                       <label :for="'description_' + index" class="block text-sm font-medium text-gray-700 mb-1">
-                        Descripción *
+                        Descripción
                       </label>
                       <input
                         v-model="item.description"
                         :id="'description_' + index"
                         type="text"
-                        required
                         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
-                        placeholder="Descripción del artículo"
+                        placeholder="Descripción detallada (opcional)"
                       />
                     </div>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mt-3">
 
                     <div class="md:col-span-2">
                       <label :for="'quantity_' + index" class="block text-sm font-medium text-gray-700 mb-1">
@@ -311,6 +327,7 @@ const calculateItemTotal = (item) => {
 
 const addItem = () => {
   form.value.items.push({
+    title: '',
     description: '',
     quantity: 1,
     price: 0
@@ -342,6 +359,7 @@ const fetchBudget = async () => {
         due_date: budget.due_date,
         status: budget.status,
         items: budget.budget_item.map(item => ({
+          title: item.title || '',
           description: item.description,
           quantity: parseFloat(item.quantity),
           price: parseFloat(item.price)

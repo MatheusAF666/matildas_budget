@@ -339,26 +339,34 @@ const downloadPDF = async (id) => {
     doc.setTextColor(...azulOscuro)
     
     items.forEach((item, index) => {
+      const titulo = item.title || `Item ${index + 1}`
       const descripcion = item.description || ''
-      const lines = doc.splitTextToSize(descripcion, 110)
+      
+      // Calcular el número de líneas necesarias
+      const tituloLines = doc.splitTextToSize(titulo, 25)
+      const descLines = doc.splitTextToSize(descripcion, 110)
+      const maxLines = Math.max(tituloLines.length, descLines.length)
       const lineHeight = 4
       
-      if (y + (lines.length * lineHeight) > pageHeight - 90) {
+      if (y + (maxLines * lineHeight) > pageHeight - 90) {
         doc.addPage()
         y = 20
       }
       
-      // Tarea (primera columna) - primera palabra de la descripción
-      const tarea = item.description?.split(' ')[0] || `Item ${index + 1}`
-      doc.text(tarea, 22, y)
+      // Título (primera columna)
+      doc.setFont(undefined, 'bold')
+      doc.text(tituloLines, 22, y)
+      doc.setFont(undefined, 'normal')
       
       // Descripción (segunda columna)
-      doc.text(lines, 50, y)
+      if (descripcion) {
+        doc.text(descLines, 50, y)
+      }
       
       // Precio (tercera columna)
       doc.text(`${parseFloat(item.total || 0).toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
       
-      y += lines.length * lineHeight + 1
+      y += maxLines * lineHeight + 1
       
       // Línea separadora azul claro después de cada item
       doc.setDrawColor(...azulClaro)

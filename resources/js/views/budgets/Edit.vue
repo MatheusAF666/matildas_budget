@@ -431,9 +431,7 @@ const calculateItemTotal = (item) => {
 const calculatePaymentAmount = (percentage) => {
   return (total.value * (percentage || 0)) / 100
 }
-const calculateItemTotal = (item) => {
-  return (item.quantity || 0) * (item.price || 0)
-}
+// ...existing code...
 
 const addItem = () => {
   form.value.items.push({

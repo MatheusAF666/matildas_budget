@@ -367,19 +367,29 @@ const downloadPDF = async (id) => {
       y += 3
     })
     
-    // Total
+    // Calcular subtotal e IVA desde el total (que ya incluye IVA)
+    const totalAmount = parseFloat(budget.total || 0)
+    const subtotalAmount = totalAmount / 1.21  // Total sin IVA
+    const ivaAmount = totalAmount - subtotalAmount  // IVA (21%)
+    
+    // Subtotal (sin IVA)
     y += 2
+    doc.setFont(undefined, 'normal')
+    doc.setFontSize(9)
+    doc.text('Subtotal (sin IVA)', pageWidth / 2 - 10, y, { align: 'center' })
+    doc.text(`${subtotalAmount.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
+    
+    // IVA
+    y += 5
+    doc.text('IVA (21%)', pageWidth / 2 - 10, y, { align: 'center' })
+    doc.text(`${ivaAmount.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
+    
+    // Total (con IVA)
+    y += 5
     doc.setFont(undefined, 'bold')
     doc.setFontSize(9.5)
-    doc.text('Total', pageWidth / 2 - 10, y, { align: 'center' })
-    doc.text(`${parseFloat(budget.total || 0).toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
-    doc.setFont(undefined, 'normal')
-    
-    // Nota IVA (derecha, negrita)
-    y += 7
-    doc.setFontSize(9)
-    doc.setFont(undefined, 'bold')
-    doc.text('Los precios no incluyen IVA', pageWidth - 20, y, { align: 'right' })
+    doc.text('Total (con IVA)', pageWidth / 2 - 10, y, { align: 'center' })
+    doc.text(`${totalAmount.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
     doc.setFont(undefined, 'normal')
     
     // Línea separadora azul oscura
@@ -445,8 +455,8 @@ const downloadPDF = async (id) => {
     y += 5
     doc.setFont(undefined, 'bold')
     doc.setFontSize(8.5)
-    doc.text('Total con IVA', 130, y, { align: 'center' })
-    doc.text(`${(totalAmount * 1.21).toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
+    doc.text('Total', 130, y, { align: 'center' })
+    doc.text(`${totalAmount.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
     doc.setFont(undefined, 'normal')
     
     // Salir del fondo gris
@@ -470,7 +480,7 @@ const downloadPDF = async (id) => {
     doc.text('Transferencia bancaria', 15, y)
     doc.setFont(undefined, 'bold')
     doc.text('ES 52 0049 0865 6025 1026 5625', 52, y)
-    doc.text(`Total con IVA(21%): ${(totalAmount * 1.21).toFixed(2)} €`, pageWidth - 15, y, { align: 'right' })
+    doc.text(`Total: ${totalAmount.toFixed(2)} €`, pageWidth - 15, y, { align: 'right' })
     doc.setFont(undefined, 'normal')
     
     y += 6

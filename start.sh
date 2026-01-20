@@ -24,6 +24,10 @@ php artisan view:cache
 
 echo "Application ready!"
 
+# Replace PORT in nginx config
+envsubst '${PORT}' < /etc/nginx/nginx.conf > /tmp/nginx.conf
+mv /tmp/nginx.conf /etc/nginx/nginx.conf
+
 # Start PHP-FPM in background
 php-fpm -D
 

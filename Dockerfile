@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     nodejs \
     npm \
-    nginx
+    nginx \
+    gettext-base
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*

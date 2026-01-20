@@ -166,6 +166,12 @@
           </div>
         </div>
 
+        <!-- Observations Card -->
+        <div v-if="budget.observations && budget.observations.trim()" class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Observaciones</h2>
+          <p class="text-gray-700 whitespace-pre-line">{{ budget.observations }}</p>
+        </div>
+
         <!-- Actions -->
         <div class="flex gap-4">
           <router-link 

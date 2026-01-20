@@ -40,6 +40,7 @@ class BudgetController extends Controller
             'payment_stage_1' => 'required|integer|min:0|max:100',
             'payment_stage_2' => 'required|integer|min:0|max:100',
             'payment_stage_3' => 'required|integer|min:0|max:100',
+            'observations' => 'nullable|string|max:2000',
             'items' => 'required|array|min:1',
             'items.*.title' => 'nullable|string|max:255',
             'items.*.description' => 'nullable|string|max:500',
@@ -82,6 +83,7 @@ class BudgetController extends Controller
                 'payment_stage_1' => $validated['payment_stage_1'],
                 'payment_stage_2' => $validated['payment_stage_2'],
                 'payment_stage_3' => $validated['payment_stage_3'],
+                'observations' => $validated['observations'] ?? null,
             ]);
 
             // Create budget items
@@ -162,6 +164,7 @@ class BudgetController extends Controller
             'payment_stage_1' => 'required|integer|min:0|max:100',
             'payment_stage_2' => 'required|integer|min:0|max:100',
             'payment_stage_3' => 'required|integer|min:0|max:100',
+            'observations' => 'nullable|string|max:2000',
             'items' => 'required|array|min:1',
             'items.*.title' => 'nullable|string|max:255',
             'items.*.description' => 'nullable|string|max:500',
@@ -195,6 +198,7 @@ class BudgetController extends Controller
                 'payment_stage_1' => $validated['payment_stage_1'],
                 'payment_stage_2' => $validated['payment_stage_2'],
                 'payment_stage_3' => $validated['payment_stage_3'],
+                'observations' => $validated['observations'] ?? null,
             ]);
 
             // Delete existing items

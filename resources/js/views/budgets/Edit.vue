@@ -324,6 +324,24 @@
               </div>
             </div>
 
+            <!-- Observations Section -->
+            <div class="border-b pb-6">
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">Observaciones</h2>
+              <label for="observations" class="block text-sm font-medium text-gray-700 mb-2">
+                Observaciones Adicionales (Opcional)
+              </label>
+              <textarea
+                v-model="form.observations"
+                id="observations"
+                rows="5"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
+                placeholder="Ingrese cualquier observación adicional sobre el presupuesto..."
+              ></textarea>
+              <p class="text-sm text-gray-500 mt-1">
+                Estas observaciones aparecerán en el PDF del presupuesto
+              </p>
+            </div>
+
             <!-- Error and Success Messages -->
             <div v-if="error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
               {{ error }}
@@ -376,6 +394,7 @@ const form = ref({
   payment_stage_1: 0,
   payment_stage_2: 0,
   payment_stage_3: 0,
+  observations: '',
   items: []
 })
 
@@ -452,6 +471,7 @@ const fetchBudget = async () => {
         payment_stage_1: budget.payment_stage_1 || 0,
         payment_stage_2: budget.payment_stage_2 || 0,
         payment_stage_3: budget.payment_stage_3 || 0,
+        observations: budget.observations || '',
         items: budget.budget_item.map(item => ({
           title: item.title || '',
           description: item.description,

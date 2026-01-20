@@ -501,6 +501,25 @@ const downloadPDF = async (id) => {
     doc.setFontSize(8)
     doc.text('Presupuesto válido por 15 días', 15, y)
     
+    // ========== OBSERVACIONES ==========
+    if (budget.observations && budget.observations.trim()) {
+      y += 8
+      doc.setFontSize(10)
+      doc.setFont(undefined, 'bold')
+      doc.setTextColor(...azulOscuro)
+      doc.text('Observaciones', 15, y)
+      doc.setFont(undefined, 'normal')
+      
+      y += 6
+      doc.setFontSize(8)
+      doc.setTextColor(0, 0, 0)
+      const observationsLines = doc.splitTextToSize(budget.observations, pageWidth - 30)
+      doc.text(observationsLines, 15, y)
+      
+      // Ajustar y según las líneas de observaciones
+      y += (observationsLines.length * 4)
+    }
+    
     // ========== FOOTER ==========
     const footerY = pageHeight - 12
     doc.setFillColor(...azulOscuro)

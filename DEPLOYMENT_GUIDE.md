@@ -78,6 +78,7 @@ APP_ENV=production
 APP_KEY=base64:TU-CLAVE-GENERADA-AQUI
 APP_DEBUG=false
 APP_URL=https://matildas-budget.onrender.com
+ASSET_URL=https://matildas-budget.onrender.com
 
 LOG_CHANNEL=stderr
 LOG_LEVEL=error

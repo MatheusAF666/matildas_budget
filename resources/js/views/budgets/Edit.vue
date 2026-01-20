@@ -247,6 +247,83 @@
               </div>
             </div>
 
+            <!-- Payment Stages Section -->
+            <div class="border-b pb-6">
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">Etapas de Pago</h2>
+              <p class="text-sm text-gray-600 mb-4">Ingrese los porcentajes de pago para cada etapa (la suma no puede superar el 100%)</p>
+              
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <label for="payment_stage_1" class="block text-sm font-medium text-gray-700 mb-2">
+                    1º Pago - Firma del Presupuesto (%)
+                  </label>
+                  <input
+                    v-model.number="form.payment_stage_1"
+                    id="payment_stage_1"
+                    type="number"
+                    min="0"
+                    max="100"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
+                    placeholder="0"
+                  />
+                  <p class="text-sm text-gray-600 mt-1">
+                    Monto: €{{ calculatePaymentAmount(form.payment_stage_1).toFixed(2) }}
+                  </p>
+                </div>
+
+                <div>
+                  <label for="payment_stage_2" class="block text-sm font-medium text-gray-700 mb-2">
+                    2º Pago - Mitad de Obra (%)
+                  </label>
+                  <input
+                    v-model.number="form.payment_stage_2"
+                    id="payment_stage_2"
+                    type="number"
+                    min="0"
+                    max="100"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
+                    placeholder="0"
+                  />
+                  <p class="text-sm text-gray-600 mt-1">
+                    Monto: €{{ calculatePaymentAmount(form.payment_stage_2).toFixed(2) }}
+                  </p>
+                </div>
+
+                <div>
+                  <label for="payment_stage_3" class="block text-sm font-medium text-gray-700 mb-2">
+                    3º Pago - Entrega y Finalización (%)
+                  </label>
+                  <input
+                    v-model.number="form.payment_stage_3"
+                    id="payment_stage_3"
+                    type="number"
+                    min="0"
+                    max="100"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900"
+                    placeholder="0"
+                  />
+                  <p class="text-sm text-gray-600 mt-1">
+                    Monto: €{{ calculatePaymentAmount(form.payment_stage_3).toFixed(2) }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex justify-between items-center">
+                  <span class="font-medium text-gray-700">Total de Pagos:</span>
+                  <span :class="paymentStagesTotal > 100 ? 'text-red-600 font-bold' : 'text-gray-900 font-bold'">
+                    {{ paymentStagesTotal }}%
+                  </span>
+                </div>
+                <p v-if="paymentStagesTotal > 100" class="text-red-600 text-sm mt-2">
+                  ⚠️ La suma de los porcentajes no puede superar el 100%
+                </p>
+              </div>
+            </div>
+
             <!-- Error and Success Messages -->
             <div v-if="error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
               {{ error }}
@@ -296,6 +373,9 @@ const form = ref({
   issue_date: '',
   due_date: '',
   status: 'draft',
+  payment_stage_1: 0,
+  payment_stage_2: 0,
+  payment_stage_3: 0,
   items: []
 })
 
@@ -320,7 +400,18 @@ const total = computed(() => {
   return subtotal.value + tax.value
 })
 
+const paymentStagesTotal = computed(() => {
+  return (form.value.payment_stage_1 || 0) + (form.value.payment_stage_2 || 0) + (form.value.payment_stage_3 || 0)
+})
+
 // Methods
+const calculateItemTotal = (item) => {
+  return (item.quantity || 0) * (item.price || 0)
+}
+
+const calculatePaymentAmount = (percentage) => {
+  return (total.value * (percentage || 0)) / 100
+}
 const calculateItemTotal = (item) => {
   return (item.quantity || 0) * (item.price || 0)
 }
@@ -358,6 +449,9 @@ const fetchBudget = async () => {
         issue_date: budget.issue_date,
         due_date: budget.due_date,
         status: budget.status,
+        payment_stage_1: budget.payment_stage_1 || 0,
+        payment_stage_2: budget.payment_stage_2 || 0,
+        payment_stage_3: budget.payment_stage_3 || 0,
         items: budget.budget_item.map(item => ({
           title: item.title || '',
           description: item.description,
@@ -388,6 +482,12 @@ const fetchBudget = async () => {
 const handleSubmit = async () => {
   if (form.value.items.length === 0) {
     error.value = 'Por favor, agregue al menos un artículo al presupuesto'
+    return
+  }
+
+  // Validate payment stages
+  if (paymentStagesTotal.value > 100) {
+    error.value = 'La suma de los porcentajes de pago no puede superar el 100%'
     return
   }
 

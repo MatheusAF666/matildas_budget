@@ -429,26 +429,31 @@ const downloadPDF = async (id) => {
     y += 5
     // totalAmount ya está declarado arriba
     
+    // Calculate payment amounts
+    const paymentAmount1 = (totalAmount * (budget.payment_stage_1 || 0)) / 100
+    const paymentAmount2 = (totalAmount * (budget.payment_stage_2 || 0)) / 100
+    const paymentAmount3 = (totalAmount * (budget.payment_stage_3 || 0)) / 100
+    
     doc.setFontSize(7.5)
     doc.text('1º Pago, firma del presupuesto', 25, y)
-    doc.text('%', 130, y)
-    doc.text('€', pageWidth - 20, y, { align: 'right' })
+    doc.text(`${budget.payment_stage_1 || 0}%`, 130, y)
+    doc.text(`${paymentAmount1.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
     
     y += 1
     doc.line(20, y, pageWidth - 20, y)
     
     y += 5
     doc.text('2º Pago, mitad obra', 25, y)
-    doc.text('%', 130, y)
-    doc.text('€', pageWidth - 20, y, { align: 'right' })
+    doc.text(`${budget.payment_stage_2 || 0}%`, 130, y)
+    doc.text(`${paymentAmount2.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
     
     y += 1
     doc.line(20, y, pageWidth - 20, y)
     
     y += 5
     doc.text('3º Pago, entrega y finalización del proyecto', 25, y)
-    doc.text('%', 130, y)
-    doc.text('€', pageWidth - 20, y, { align: 'right' })
+    doc.text(`${budget.payment_stage_3 || 0}%`, 130, y)
+    doc.text(`${paymentAmount3.toFixed(2)} €`, pageWidth - 20, y, { align: 'right' })
     
     y += 1
     doc.line(20, y, pageWidth - 20, y)

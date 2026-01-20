@@ -125,6 +125,47 @@
           </div>
         </div>
 
+        <!-- Payment Stages Card -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Etapas de Pago</h2>
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="border border-gray-200 rounded-lg p-4">
+                <p class="text-sm font-medium text-gray-700 mb-2">1º Pago - Firma del Presupuesto</p>
+                <p class="text-2xl font-bold text-indigo-600">{{ budget.payment_stage_1 || 0 }}%</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  €{{ ((parseFloat(budget.total) * (budget.payment_stage_1 || 0)) / 100).toFixed(2) }}
+                </p>
+              </div>
+              
+              <div class="border border-gray-200 rounded-lg p-4">
+                <p class="text-sm font-medium text-gray-700 mb-2">2º Pago - Mitad de Obra</p>
+                <p class="text-2xl font-bold text-indigo-600">{{ budget.payment_stage_2 || 0 }}%</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  €{{ ((parseFloat(budget.total) * (budget.payment_stage_2 || 0)) / 100).toFixed(2) }}
+                </p>
+              </div>
+              
+              <div class="border border-gray-200 rounded-lg p-4">
+                <p class="text-sm font-medium text-gray-700 mb-2">3º Pago - Entrega y Finalización</p>
+                <p class="text-2xl font-bold text-indigo-600">{{ budget.payment_stage_3 || 0 }}%</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  €{{ ((parseFloat(budget.total) * (budget.payment_stage_3 || 0)) / 100).toFixed(2) }}
+                </p>
+              </div>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="flex justify-between items-center">
+                <span class="font-medium text-gray-700">Total de Porcentajes:</span>
+                <span class="text-lg font-bold text-gray-900">
+                  {{ (budget.payment_stage_1 || 0) + (budget.payment_stage_2 || 0) + (budget.payment_stage_3 || 0) }}%
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Actions -->
         <div class="flex gap-4">
           <router-link 

@@ -37,12 +37,25 @@ class BudgetController extends Controller
             'subtotal' => 'required|numeric|min:0',
             'tax' => 'required|numeric|min:0',
             'total' => 'required|numeric|min:0',
+            'payment_stage_1' => 'required|integer|min:0|max:100',
+            'payment_stage_2' => 'required|integer|min:0|max:100',
+            'payment_stage_3' => 'required|integer|min:0|max:100',
             'items' => 'required|array|min:1',
             'items.*.title' => 'nullable|string|max:255',
             'items.*.description' => 'nullable|string|max:500',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.price' => 'required|numeric|min:0',
         ]);
+
+        // Validate that payment stages sum does not exceed 100
+        $paymentSum = $validated['payment_stage_1'] + $validated['payment_stage_2'] + $validated['payment_stage_3'];
+        if ($paymentSum > 100) {
+            return response()->json([
+                'status' => false,
+                'message' => 'La suma de los porcentajes de pago no puede superar el 100%',
+                'errors' => ['payment_stages' => ['La suma de los porcentajes de pago no puede superar el 100%']]
+            ], 422);
+        }
 
         try {
             DB::beginTransaction();
@@ -66,6 +79,9 @@ class BudgetController extends Controller
                 'subtotal' => $validated['subtotal'],
                 'tax' => $validated['tax'],
                 'total' => $validated['total'],
+                'payment_stage_1' => $validated['payment_stage_1'],
+                'payment_stage_2' => $validated['payment_stage_2'],
+                'payment_stage_3' => $validated['payment_stage_3'],
             ]);
 
             // Create budget items
@@ -143,12 +159,25 @@ class BudgetController extends Controller
             'subtotal' => 'required|numeric|min:0',
             'tax' => 'required|numeric|min:0',
             'total' => 'required|numeric|min:0',
+            'payment_stage_1' => 'required|integer|min:0|max:100',
+            'payment_stage_2' => 'required|integer|min:0|max:100',
+            'payment_stage_3' => 'required|integer|min:0|max:100',
             'items' => 'required|array|min:1',
             'items.*.title' => 'nullable|string|max:255',
             'items.*.description' => 'nullable|string|max:500',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.price' => 'required|numeric|min:0',
         ]);
+
+        // Validate that payment stages sum does not exceed 100
+        $paymentSum = $validated['payment_stage_1'] + $validated['payment_stage_2'] + $validated['payment_stage_3'];
+        if ($paymentSum > 100) {
+            return response()->json([
+                'status' => false,
+                'message' => 'La suma de los porcentajes de pago no puede superar el 100%',
+                'errors' => ['payment_stages' => ['La suma de los porcentajes de pago no puede superar el 100%']]
+            ], 422);
+        }
 
         try {
             DB::beginTransaction();
@@ -163,6 +192,9 @@ class BudgetController extends Controller
                 'subtotal' => $validated['subtotal'],
                 'tax' => $validated['tax'],
                 'total' => $validated['total'],
+                'payment_stage_1' => $validated['payment_stage_1'],
+                'payment_stage_2' => $validated['payment_stage_2'],
+                'payment_stage_3' => $validated['payment_stage_3'],
             ]);
 
             // Delete existing items

@@ -177,8 +177,17 @@ const downloadPDF = async (id) => {
         
         // Crear imagen temporal para obtener dimensiones
         const img = new Image()
-        await new Promise((resolve) => {
-          img.onload = () => resolve()
+        await new Promise((resolve, reject) => {
+          img.onload = () => {
+            console.log('Image loaded with dimensions:', img.width, 'x', img.height)
+            resolve()
+          }
+          img.onerror = (err) => {
+            console.error('Error loading image element:', err)
+            reject(err)
+          }
+          // Timeout de 5 segundos
+          setTimeout(() => reject(new Error('Image load timeout')), 5000)
           img.src = base64
         })
         
@@ -188,7 +197,9 @@ const downloadPDF = async (id) => {
         
         // Detectar formato de imagen
         const format = company.logo.toLowerCase().includes('.png') ? 'PNG' : 'JPEG'
+        console.log('Adding image to PDF with format:', format)
         doc.addImage(base64, format, 15, y, logoWidth, logoHeight)
+        console.log('Image added successfully to PDF')
         y += logoHeight + 5
       } catch (err) {
         console.error('Error loading logo:', err)
@@ -464,10 +475,14 @@ const downloadPDF = async (id) => {
       : 'Gracias por su confianza'
     doc.text(footerText, pageWidth / 2, footerY + 7, { align: 'center' })
 
+    console.log('PDF generation complete, saving...')
     doc.save(`budget_${budget.budget_number}.pdf`)
+    console.log('PDF saved successfully')
   } catch (err) {
     console.error('Error downloading PDF:', err)
+    console.error('Error stack:', err.stack)
     error.value = err.response?.data?.message || err.message || 'Failed to download PDF. Please try again.'
+    alert('Error al generar PDF: ' + (err.message || 'Error desconocido'))
   }
 }
 

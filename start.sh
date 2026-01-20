@@ -3,6 +3,13 @@ set -e
 
 echo "Starting application initialization..."
 
+# Create necessary directories
+echo "Creating directories..."
+mkdir -p /app/storage/logs
+mkdir -p /app/storage/framework/{sessions,views,cache}
+mkdir -p /app/storage/app/public
+mkdir -p /app/bootstrap/cache
+
 # Set proper permissions
 echo "Setting permissions..."
 chown -R www-data:www-data /app/storage /app/bootstrap/cache

@@ -486,7 +486,7 @@ const downloadPDF = async (id) => {
     
     y += 10
     doc.setFontSize(8)
-    doc.text('Presupuesto válido por un mes', 15, y)
+    doc.text('Presupuesto válido por 15 días', 15, y)
     
     // ========== FOOTER ==========
     const footerY = pageHeight - 12

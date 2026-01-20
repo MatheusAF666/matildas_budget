@@ -17,5 +17,8 @@ php artisan view:cache
 
 echo "Application ready!"
 
-# Start the application
-exec php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+# Start PHP-FPM in background
+php-fpm -D
+
+# Start Nginx in foreground
+exec nginx -g 'daemon off;'

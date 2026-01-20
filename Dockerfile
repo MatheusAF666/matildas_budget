@@ -1,4 +1,4 @@
-﻿FROM php:8.2-cli
+﻿FROM php:8.2-fpm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nodejs \
-    npm
+    npm \
+    nginx
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -27,6 +28,9 @@ WORKDIR /app
 
 # Copy application files
 COPY . /app
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Make scripts executable
 RUN chmod +x /app/build.sh /app/start.sh

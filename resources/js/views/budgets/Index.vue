@@ -426,7 +426,7 @@ const downloadPDF = async (id) => {
     
     // Items de condiciones
     y += 5
-    const totalAmount = parseFloat(budget.total || 0)
+    // totalAmount ya está declarado arriba
     
     doc.setFontSize(7.5)
     doc.text('1º Pago, firma del presupuesto', 25, y)

@@ -38,7 +38,8 @@ class BudgetController extends Controller
             'tax' => 'required|numeric|min:0',
             'total' => 'required|numeric|min:0',
             'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string|max:500',
+            'items.*.title' => 'nullable|string|max:255',
+            'items.*.description' => 'nullable|string|max:500',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.price' => 'required|numeric|min:0',
         ]);
@@ -143,7 +144,8 @@ class BudgetController extends Controller
             'tax' => 'required|numeric|min:0',
             'total' => 'required|numeric|min:0',
             'items' => 'required|array|min:1',
-            'items.*.description' => 'required|string|max:500',
+            'items.*.title' => 'nullable|string|max:255',
+            'items.*.description' => 'nullable|string|max:500',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.price' => 'required|numeric|min:0',
         ]);

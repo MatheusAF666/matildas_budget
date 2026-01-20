@@ -91,10 +91,10 @@ DB_CONNECTION=pgsql
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=tu-email@gmail.com
-MAIL_PASSWORD=tu-app-password-de-gmail
+MAIL_USERNAME=matheusalveslinkedin@gmail.com
+MAIL_PASSWORD=xsgkqoahzxldtmuo
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=tu-email@gmail.com
+MAIL_FROM_ADDRESS=matheusalveslinkedin@gmail.com
 MAIL_FROM_NAME=Matilda's Budget
 ```
 

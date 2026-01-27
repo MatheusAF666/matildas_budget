@@ -1,9 +1,8 @@
 <?php
 
+namespace App\Models;
 // Modelo que representa un presupuesto en la base de datos
 // Define las relaciones con cliente, usuario y artículos
-
-namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

@@ -385,16 +385,13 @@
 <script setup>
 // Importaciones de librerías y hooks de Vue
 // Se usan para manejar el estado, rutas y peticiones HTTP
-import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
-import { useRoute, useRouter } from 'vue-router'
-
-const clients = ref([])
-// Lista de clientes disponibles para seleccionar en el presupuesto
 
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+
+const clients = ref([])
+// Lista de clientes disponibles para seleccionar en el presupuesto
 
 const router = useRouter()
 const route = useRoute()

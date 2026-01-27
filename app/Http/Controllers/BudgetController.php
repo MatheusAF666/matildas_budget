@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+// Controlador para gestionar los presupuestos
+// Incluye métodos para listar, crear, actualizar y eliminar presupuestos
 
 use App\Models\Budget;
 use App\Models\BudgetItem;
@@ -12,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class BudgetController extends Controller
+    // Método para obtener la lista de presupuestos del usuario autenticado
 {
     public function index(Request $request)
     {
@@ -27,6 +30,9 @@ class BudgetController extends Controller
     }
 
     public function store(Request $request)
+        // Validación de los datos recibidos para crear un presupuesto
+        // Se valida cliente, fechas, estado, totales, etapas de pago y artículos
+        // Si la suma de las etapas de pago supera 100, se retorna error
     {
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',

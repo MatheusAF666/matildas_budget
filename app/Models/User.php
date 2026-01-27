@@ -1,3 +1,5 @@
+// Modelo que representa un usuario en la base de datos
+// Define las relaciones con clientes y presupuestos
 <?php
 
 namespace App\Models;
@@ -9,6 +11,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable
+    // Relación: Un usuario puede tener muchos clientes
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
    
@@ -53,6 +56,7 @@ class User extends Authenticatable
     }
     
     public function Client(){
+            // Relación: Un usuario puede tener muchos presupuestos
         return $this->hasMany(Client::class);
     }
     

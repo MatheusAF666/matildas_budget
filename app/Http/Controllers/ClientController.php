@@ -1,13 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
+// Controlador para gestionar los clientes
+// Incluye métodos para listar, mostrar y crear clientes
 
 use App\Models\Client;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
+    // Método para obtener la lista de clientes del usuario autenticado
 {
     public function index(Request $request)
+        // Método para mostrar los datos de un cliente específico
     {
         $clients = Client::where('user_id', $request->user()->id)
             ->orderBy('created_at', 'desc')
@@ -20,6 +24,7 @@ class ClientController extends Controller
     }
 
     public function show(Request $request, $id)
+        // Método para crear un nuevo cliente
     {
         $client = Client::where('id', $id)
             ->where('user_id', $request->user()->id)

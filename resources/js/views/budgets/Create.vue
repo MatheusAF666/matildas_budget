@@ -1,4 +1,8 @@
 <template>
+  <!--
+    Vista para crear un nuevo presupuesto.
+    Permite seleccionar o crear un cliente, agregar artículos, etapas de pago y observaciones.
+  -->
   <div class="min-h-screen bg-gray-50">
     <div class="container mx-auto px-4 py-8">
       <div class="max-w-5xl mx-auto">

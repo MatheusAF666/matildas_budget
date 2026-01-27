@@ -1,4 +1,8 @@
 <template>
+  <!--
+    Vista para editar un presupuesto.
+    Permite modificar los datos principales, los artículos, etapas de pago, observaciones y el cliente asociado.
+  -->
   <div class="min-h-screen bg-gray-50">
     <div class="container mx-auto px-4 py-8">
       <div class="max-w-5xl mx-auto">
@@ -29,11 +33,15 @@
             <div class="border-b pb-6">
               <h2 class="text-xl font-semibold text-gray-800 mb-4">Información del Presupuesto</h2>
               
-              <!-- Client Info (Read-only) -->
+              <!-- Client Info (Editable) -->
               <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-800 mb-2">Cliente</h3>
-                <p class="text-gray-700">{{ clientName }}</p>
-                <p class="text-sm text-gray-500 mt-1">Nota: El cliente no puede ser cambiado al editar un presupuesto</p>
+                <select v-model="form.client_id" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-900">
+                  <option v-for="client in clients" :key="client.id" :value="client.id">
+                    {{ client.name }}
+                  </option>
+                </select>
+                <p class="text-sm text-gray-500 mt-1">Selecciona el cliente para este presupuesto</p>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -375,6 +383,15 @@
 </template>
 
 <script setup>
+// Importaciones de librerías y hooks de Vue
+// Se usan para manejar el estado, rutas y peticiones HTTP
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
+import { useRoute, useRouter } from 'vue-router'
+
+const clients = ref([])
+// Lista de clientes disponibles para seleccionar en el presupuesto
+
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
@@ -386,6 +403,7 @@ const taxRate = ref(21)
 const clientName = ref('')
 
 const form = ref({
+  // Estado reactivo que almacena los datos del formulario de edición del presupuesto
   client_id: '',
   budget_number: '',
   issue_date: '',
@@ -406,34 +424,41 @@ const success = ref('')
 
 // Computed properties for calculations
 const subtotal = computed(() => {
+  // Calcula el subtotal sumando el total de cada artículo
   return form.value.items.reduce((sum, item) => {
     return sum + calculateItemTotal(item)
   }, 0)
 })
 
 const tax = computed(() => {
+  // Calcula el impuesto en base al subtotal y la tasa de impuesto
   return subtotal.value * (taxRate.value / 100)
 })
 
 const total = computed(() => {
+  // Calcula el total sumando el subtotal y el impuesto
   return subtotal.value + tax.value
 })
 
 const paymentStagesTotal = computed(() => {
+  // Calcula la suma de los porcentajes de las etapas de pago
   return (form.value.payment_stage_1 || 0) + (form.value.payment_stage_2 || 0) + (form.value.payment_stage_3 || 0)
 })
 
 // Methods
 const calculateItemTotal = (item) => {
+  // Calcula el total de un artículo multiplicando cantidad por precio
   return (item.quantity || 0) * (item.price || 0)
 }
 
 const calculatePaymentAmount = (percentage) => {
+  // Calcula el monto de una etapa de pago según el porcentaje y el total
   return (total.value * (percentage || 0)) / 100
 }
 // ...existing code...
 
 const addItem = () => {
+  // Agrega un nuevo artículo vacío al presupuesto
   form.value.items.push({
     title: '',
     description: '',
@@ -443,10 +468,12 @@ const addItem = () => {
 }
 
 const removeItem = (index) => {
+  // Elimina un artículo del presupuesto según el índice
   form.value.items.splice(index, 1)
 }
 
 const fetchBudget = async () => {
+  // Función para cargar los datos del presupuesto a editar y la lista de clientes
   loadingBudget.value = true
   loadError.value = ''
 
@@ -454,6 +481,11 @@ const fetchBudget = async () => {
 
   try {
     const response = await axios.get(`/budgets/${route.params.id}`)
+    // Fetch clients for select
+    const clientsResponse = await axios.get('/clients')
+    clients.value = clientsResponse.data
+    // Set selected client
+    form.value.client_id = response.data.client_id
     
     console.log('Response:', response.data)
     
@@ -498,6 +530,7 @@ const fetchBudget = async () => {
 }
 
 const handleSubmit = async () => {
+  // Función para enviar el formulario y actualizar el presupuesto en el backend
   if (form.value.items.length === 0) {
     error.value = 'Por favor, agregue al menos un artículo al presupuesto'
     return
@@ -548,6 +581,7 @@ const handleSubmit = async () => {
 }
 
 onMounted(() => {
+  // Hook que se ejecuta al montar el componente para cargar los datos iniciales
   fetchBudget()
 })
 </script>

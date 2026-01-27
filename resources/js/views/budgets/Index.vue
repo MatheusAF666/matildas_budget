@@ -1,4 +1,6 @@
 <script setup>
+// Vista para listar todos los presupuestos
+// Permite buscar, filtrar, eliminar y exportar presupuestos
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'

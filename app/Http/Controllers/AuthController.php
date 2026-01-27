@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+// Controlador para la autenticación de usuarios
+// Incluye métodos para registrar, iniciar sesión y manejar la sesión de usuarios
 use App\Http\Requests\CreatuserRequest;
 use App\Models\User;
 use App\Http\Requests\LoginRequest;
@@ -11,8 +13,10 @@ use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
+    // Método para registrar un nuevo usuario
 {
     public function createUser(Request $request)
+        // Método para iniciar sesión de usuario
     {
         $request->validate([
             'name' => 'required|string|max:255',

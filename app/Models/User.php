@@ -1,8 +1,8 @@
-// Modelo que representa un usuario en la base de datos
-// Define las relaciones con clientes y presupuestos
 <?php
 
 namespace App\Models;
+// Modelo que representa un usuario en la base de datos
+// Define las relaciones con clientes y presupuestos
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

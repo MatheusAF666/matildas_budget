@@ -28,6 +28,9 @@ Route::prefix('api')->middleware(['web'])->group(function () {
         // Budget routes
         Route::get('/budgets', [BudgetController::class, 'index']);
         Route::post('/budgets-new', [BudgetController::class, 'store']);
+        Route::get('/budgets-draft', [BudgetController::class, 'getDraft']);
+        Route::post('/budgets-draft', [BudgetController::class, 'saveDraft']);
+        Route::delete('/budgets-draft', [BudgetController::class, 'clearDraft']);
         Route::get('/budgets/{id}', [BudgetController::class, 'show']);
         Route::get('/budgets/{id}/pdf', [BudgetController::class, 'downloadPDF']);
         Route::put('/budgets/{id}', [BudgetController::class, 'update']);

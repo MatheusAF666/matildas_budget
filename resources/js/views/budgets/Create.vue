@@ -630,7 +630,7 @@ const clientType = ref('existing')
 const defaultDueDays = ref(31)
 const nextBudgetNumber = ref(1)
 
-const form = ref({
+const createInitialForm = () => ({
   client_id: '',
   issue_date: new Date().toISOString().split('T')[0],
   due_date: '',
@@ -647,7 +647,7 @@ const form = ref({
   items: []
 })
 
-const newClient = ref({
+const createInitialNewClient = () => ({
   name: '',
   dni: '',
   email: '',
@@ -659,18 +659,137 @@ const newClient = ref({
   city: ''
 })
 
+const form = ref(createInitialForm())
+const newClient = ref(createInitialNewClient())
+
 const loading = ref(false)
 const error = ref('')
 const success = ref('')
+const isRestoringDraft = ref(true)
+const draftSaveTimer = ref(null)
+
+const DRAFT_STORAGE_KEY = 'budget_create_draft_v1'
+
+const buildDraftPayload = () => ({
+  clientType: clientType.value,
+  taxRate: taxRate.value,
+  form: form.value,
+  newClient: newClient.value,
+  savedAt: new Date().toISOString()
+})
+
+const loadDraftFromLocalStorage = () => {
+  const raw = localStorage.getItem(DRAFT_STORAGE_KEY)
+  if (!raw) return null
+  try {
+    return JSON.parse(raw)
+  } catch (parseErr) {
+    console.error('Error parsing local draft:', parseErr)
+    return null
+  }
+}
+
+const saveDraftToLocalStorage = (payload) => {
+  localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload))
+}
+
+const loadDraftFromServer = async () => {
+  try {
+    const response = await axios.get('/budgets-draft')
+    if (response.data.status && response.data.draft?.payload) {
+      return {
+        ...response.data.draft.payload,
+        savedAt: response.data.draft.saved_at || response.data.draft.payload.savedAt
+      }
+    }
+  } catch (serverErr) {
+    console.error('Error loading draft from server:', serverErr)
+  }
+  return null
+}
+
+const getDraftTimestamp = (draft) => {
+  if (!draft?.savedAt) return 0
+  const timestamp = Date.parse(draft.savedAt)
+  return Number.isNaN(timestamp) ? 0 : timestamp
+}
+
+const applyDraft = (draft) => {
+  if (!draft) return
+  clientType.value = draft.clientType || 'existing'
+  taxRate.value = typeof draft.taxRate === 'number' ? draft.taxRate : 21
+  form.value = {
+    ...createInitialForm(),
+    ...(draft.form || {}),
+    items: draft.form?.items || []
+  }
+  newClient.value = {
+    ...createInitialNewClient(),
+    ...(draft.newClient || {})
+  }
+}
+
+const loadDrafts = async () => {
+  const localDraft = loadDraftFromLocalStorage()
+  const serverDraft = await loadDraftFromServer()
+
+  if (!localDraft && !serverDraft) {
+    return
+  }
+
+  const localTimestamp = getDraftTimestamp(localDraft)
+  const serverTimestamp = getDraftTimestamp(serverDraft)
+  const selectedDraft = serverTimestamp >= localTimestamp ? serverDraft : localDraft
+
+  if (selectedDraft) {
+    applyDraft(selectedDraft)
+    saveDraftToLocalStorage(selectedDraft)
+  }
+}
+
+const saveDraftToServer = async (payload) => {
+  try {
+    await axios.post('/budgets-draft', { payload })
+  } catch (serverErr) {
+    console.error('Error saving draft to server:', serverErr)
+  }
+}
+
+const scheduleDraftSave = () => {
+  if (isRestoringDraft.value) return
+  if (draftSaveTimer.value) {
+    clearTimeout(draftSaveTimer.value)
+  }
+  draftSaveTimer.value = setTimeout(async () => {
+    const payload = buildDraftPayload()
+    saveDraftToLocalStorage(payload)
+    await saveDraftToServer(payload)
+  }, 500)
+}
+
+const clearDrafts = async () => {
+  localStorage.removeItem(DRAFT_STORAGE_KEY)
+  try {
+    await axios.delete('/budgets-draft')
+  } catch (serverErr) {
+    console.error('Error clearing draft on server:', serverErr)
+  }
+}
 
 // Watch para calcular automáticamente la fecha de vencimiento
 watch(() => form.value.issue_date, (newIssueDate) => {
-  if (newIssueDate && defaultDueDays.value) {
-    const issueDate = new Date(newIssueDate)
-    issueDate.setDate(issueDate.getDate() + defaultDueDays.value)
-    form.value.due_date = issueDate.toISOString().split('T')[0]
+  if (!newIssueDate || !defaultDueDays.value) {
+    return
   }
+  if (isRestoringDraft.value && form.value.due_date) {
+    return
+  }
+  const issueDate = new Date(newIssueDate)
+  issueDate.setDate(issueDate.getDate() + defaultDueDays.value)
+  form.value.due_date = issueDate.toISOString().split('T')[0]
 })
+
+watch([form, newClient, clientType, taxRate], scheduleDraftSave, { deep: true })
 
 // Computed properties for calculations
 const subtotal = computed(() => {
@@ -845,6 +964,8 @@ const handleSubmit = async () => {
       success.value = clientType.value === 'new' 
         ? '¡Cliente y presupuesto creados exitosamente!' 
         : '¡Presupuesto creado exitosamente!'
+
+      await clearDrafts()
       
       // Redirect to budgets list after a short delay
       setTimeout(() => {
@@ -861,10 +982,17 @@ const handleSubmit = async () => {
   }
 }
 
-onMounted(() => {
-  loadClients()
-  loadCompanySettings()
-  loadNextBudgetNumber()
+onMounted(async () => {
+  await loadDrafts()
+  await loadClients()
+  await loadCompanySettings()
+  await loadNextBudgetNumber()
+
+  if (clientType.value === 'existing' && form.value.client_id) {
+    onClientSelect()
+  }
+
+  isRestoringDraft.value = false
 })
 </script>
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 // Incluye métodos para listar, crear, actualizar y eliminar presupuestos
 
 use App\Models\Budget;
+use App\Models\BudgetDraft;
 use App\Models\BudgetItem;
 use App\Mail\BudgetCreated;
 use Illuminate\Http\Request;
@@ -123,6 +124,58 @@ class BudgetController extends Controller
                 'message' => 'Failed to create budget: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function getDraft(Request $request)
+    {
+        $draft = BudgetDraft::where('user_id', $request->user()->id)->first();
+
+        if (!$draft) {
+            return response()->json([
+                'status' => true,
+                'draft' => null
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'draft' => [
+                'payload' => $draft->payload,
+                'saved_at' => $draft->saved_at?->toISOString()
+            ]
+        ]);
+    }
+
+    public function saveDraft(Request $request)
+    {
+        $validated = $request->validate([
+            'payload' => 'required|array'
+        ]);
+
+        $draft = BudgetDraft::updateOrCreate(
+            ['user_id' => $request->user()->id],
+            [
+                'payload' => $validated['payload'],
+                'saved_at' => now()
+            ]
+        );
+
+        return response()->json([
+            'status' => true,
+            'draft' => [
+                'payload' => $draft->payload,
+                'saved_at' => $draft->saved_at?->toISOString()
+            ]
+        ], 201);
+    }
+
+    public function clearDraft(Request $request)
+    {
+        BudgetDraft::where('user_id', $request->user()->id)->delete();
+
+        return response()->json([
+            'status' => true
+        ]);
     }
 
     public function show(Request $request, $id)

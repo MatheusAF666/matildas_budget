@@ -224,7 +224,7 @@
         <div class="client-budget-section">
             <div class="client-info">
                 <div class="section-title">Cliente: {{ $budget->client->name ?? 'N/A' }}</div>
-                <div class="info-line">DNI: {{ $budget->client->dni ?? '' }}</div>
+                <div class="info-line">DNI/NIF: {{ $budget->client->dni ?? '' }}</div>
                 <div class="info-line">Teléfono: {{ $budget->client->phone ?? '' }}</div>
                 <div class="info-line">
                     Calle: {{ $budget->client->street ?? '' }}, nº {{ $budget->client->number ?? '' }}

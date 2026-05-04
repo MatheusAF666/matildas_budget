@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 // Controlador para gestionar los presupuestos
 // Incluye métodos para listar, crear, actualizar y eliminar presupuestos
 
+use App\Http\Requests\UpdateBudgetRequest;
 use App\Models\Budget;
 use App\Models\BudgetDraft;
 use App\Models\BudgetItem;
 use App\Mail\BudgetCreated;
 use Illuminate\Http\Request;
+use Illuminate\Session\Store;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\StoreBudgetRequest;
 
 class BudgetController extends Controller
     // Método para obtener la lista de presupuestos del usuario autenticado
@@ -30,32 +33,14 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreBudgetRequest $request)
         // Validación de los datos recibidos para crear un presupuesto
         // Se valida cliente, fechas, estado, totales, etapas de pago y artículos
         // Si la suma de las etapas de pago supera 100, se retorna error
     {
-        $validated = $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'budget_number' => 'nullable|integer',
-            'issue_date' => 'required|date',
-            'due_date' => 'required|date|after_or_equal:issue_date',
-            'status' => 'required|in:draft,sent,accepted,rejected',
-            'subtotal' => 'required|numeric|min:0',
-            'tax' => 'required|numeric|min:0',
-            'total' => 'required|numeric|min:0',
-            'payment_stage_1' => 'required|integer|min:0|max:100',
-            'payment_stage_2' => 'required|integer|min:0|max:100',
-            'payment_stage_3' => 'required|integer|min:0|max:100',
-            'observations' => 'nullable|string|max:2000',
-            'items' => 'required|array|min:1',
-            'items.*.title' => 'nullable|string|max:255',
-            'items.*.description' => 'nullable|string|max:500',
-            'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.price' => 'required|numeric|min:0',
-        ]);
+        $validated = $request->validated();
 
-        // Validate that payment stages sum does not exceed 100
+        // valida que la suma de las etapas de pago no supere el 100%
         $paymentSum = $validated['payment_stage_1'] + $validated['payment_stage_2'] + $validated['payment_stage_3'];
         if ($paymentSum > 100) {
             return response()->json([
@@ -68,7 +53,7 @@ class BudgetController extends Controller
         try {
             DB::beginTransaction();
 
-            // Generate budget number automatically if not provided
+            // Generar número de presupuesto si no se proporciona
             if (empty($validated['budget_number'])) {
                 $lastBudget = Budget::where('user_id', $request->user()->id)
                     ->orderBy('budget_number', 'desc')
@@ -76,7 +61,7 @@ class BudgetController extends Controller
                 $validated['budget_number'] = $lastBudget ? $lastBudget->budget_number + 1 : 1;
             }
 
-            // Create the budget
+            // Crear el presupuesto principal
             $budget = Budget::create([
                 'user_id' => $request->user()->id,
                 'client_id' => $validated['client_id'],
@@ -93,7 +78,7 @@ class BudgetController extends Controller
                 'observations' => $validated['observations'] ?? null,
             ]);
 
-            // Create budget items
+            // Crear los ítems del presupuesto
             foreach ($validated['items'] as $item) {
                 BudgetItem::create([
                     'budget_id' => $budget->id,
@@ -107,7 +92,7 @@ class BudgetController extends Controller
 
             DB::commit();
 
-            // Load the budget with relationships
+            // Cargar el presupuesto con las relaciones
             $budget->load(['client', 'budgetItem']);
 
             return response()->json([
@@ -198,7 +183,7 @@ class BudgetController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateBudgetRequest $request, $id)
     {
         $budget = Budget::where('id', $id)
             ->where('user_id', $request->user()->id)
@@ -211,27 +196,9 @@ class BudgetController extends Controller
             ], 404);
         }
 
-        $validated = $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'budget_number' => 'required|integer',
-            'issue_date' => 'required|date',
-            'due_date' => 'required|date|after_or_equal:issue_date',
-            'status' => 'required|in:draft,sent,accepted,rejected',
-            'subtotal' => 'required|numeric|min:0',
-            'tax' => 'required|numeric|min:0',
-            'total' => 'required|numeric|min:0',
-            'payment_stage_1' => 'required|integer|min:0|max:100',
-            'payment_stage_2' => 'required|integer|min:0|max:100',
-            'payment_stage_3' => 'required|integer|min:0|max:100',
-            'observations' => 'nullable|string|max:2000',
-            'items' => 'required|array|min:1',
-            'items.*.title' => 'nullable|string|max:255',
-            'items.*.description' => 'nullable|string|max:500',
-            'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.price' => 'required|numeric|min:0',
-        ]);
+        $validated = $request->validated();
 
-        // Validate that payment stages sum does not exceed 100
+        // valida que la suma de las etapas de pago no supere el 100%
         $paymentSum = $validated['payment_stage_1'] + $validated['payment_stage_2'] + $validated['payment_stage_3'];
         if ($paymentSum > 100) {
             return response()->json([
@@ -244,7 +211,7 @@ class BudgetController extends Controller
         try {
             DB::beginTransaction();
 
-            // Update the budget
+            // Actualizar el presupuesto principal
             $budget->update([
                 'client_id' => $validated['client_id'],
                 'budget_number' => $validated['budget_number'],
@@ -260,10 +227,10 @@ class BudgetController extends Controller
                 'observations' => $validated['observations'] ?? null,
             ]);
 
-            // Delete existing items
+            // Eliminar los ítems existentes
             BudgetItem::where('budget_id', $budget->id)->delete();
 
-            // Create new items
+            // Crear los nuevos ítems del presupuesto
             foreach ($validated['items'] as $item) {
                 BudgetItem::create([
                     'budget_id' => $budget->id,
@@ -277,7 +244,7 @@ class BudgetController extends Controller
 
             DB::commit();
 
-            // Load the budget with relationships
+            // Cargar el presupuesto con las relaciones
             $budget->load(['client', 'budgetItem']);
 
             return response()->json([
@@ -309,7 +276,7 @@ class BudgetController extends Controller
             ], 404);
         }
 
-        // Delete budget items first (cascade should handle this, but being explicit)
+        // Eliminar los ítems del presupuesto primero (el cascade debería manejar esto, pero siendo explícito)
         BudgetItem::where('budget_id', $budget->id)->delete();
         
         $budget->delete();
@@ -364,7 +331,7 @@ class BudgetController extends Controller
         }
 
         try {
-            // Get company settings and user
+            // Obtener la información de la empresa del usuario para incluirla en el email
             $user = $request->user();
             $companySettings = [
                 'name' => $user->company_name,
@@ -392,7 +359,7 @@ class BudgetController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Failed to send budget email: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
+            Log::error('Stack trace: ' . $e->getTraceAsString()); 
             
             return response()->json([
                 'status' => false,
